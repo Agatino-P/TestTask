@@ -15,45 +15,56 @@ namespace TestTask
         {
             InitializeComponent();
             Strings = new ObservableCollection<string>();
-                Strings.Add("s1");
+            Strings.Add("s1");
             Strings.Add("s2");
         }
 
         public ObservableCollection<string> Strings
         {
-            get { return (ObservableCollection<string>)GetValue(StringsProperty); }
-            set { SetValue(StringsProperty, value); }
+            get => (ObservableCollection<string>)GetValue(StringsProperty);
+            set => SetValue(StringsProperty, value);
         }
-
-        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty StringsProperty =
             DependencyProperty.Register("Strings", typeof(ObservableCollection<string>), typeof(MainWindow), new PropertyMetadata(null));
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             Strings.Clear();
-            var newStrings = await getStringsAsync();
-            foreach (var ns in newStrings)
+
+            try
             {
-                Strings.Add(ns);
+                var newStrings = await getStringsAsync();
+                foreach (var ns in newStrings)
+                {
+                    Strings.Add(ns);
+                }
+
             }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+            }
+
         }
 
         private async Task<ObservableCollection<string>> getStringsAsync()
         {
-            Task task = Task.Factory.StartNew(() => initStrings());
-            await task;
-            return ( task as Task<ObservableCollection<string>>).Result;
-            
+            return await Task.Factory.StartNew(() => initStrings());
         }
 
         private ObservableCollection<string> initStrings()
         {
             var collection = new ObservableCollection<string>();
-            collection.Add("a");
-            collection.Add("b");
-            collection.Add("c");
-            Thread.Sleep(1000);
+            Random rand = new Random();
+            int numStrings = rand.Next(5, 11);
+            if (numStrings > 8)
+                throw (new Exception());
+            for (int strCount = 0; strCount < numStrings; strCount++)
+            {
+                collection.Add(rand.Next(1, 101).ToString());
+                Thread.Sleep(1000);
+            }
             return collection;
         }
     }
